@@ -56,14 +56,14 @@ class Toolbar extends JPanel implements Observer {
         
         m_grid.addActionListener(new ActionListener( ) {
             public void actionPerformed(ActionEvent e) {
-                //m_model.setView();
+                m_model.setGrid();
                 m_list.setSelected(false);
                 m_grid.setSelected(true);
             }
         });
         m_list.addActionListener(new ActionListener( ) {
             public void actionPerformed(ActionEvent e) {
-                //m_model.setView();
+                m_model.setList();
                 m_list.setSelected(true);
                 m_grid.setSelected(false);
             }

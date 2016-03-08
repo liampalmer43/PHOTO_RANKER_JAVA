@@ -11,16 +11,18 @@ import java.nio.file.attribute.*;
 import java.nio.file.Files;
 import java.nio.file.*;
 import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class ImageCollectionModel extends Observable { 
     // the data in the model
     private ArrayList<ImageModel> m_imageModels;
     private JFileChooser m_fileChooser;
     private JFrame m_Jframe;
+    private boolean grid;
 
-    public static int IMAGE_WIDTH = 250;
-    public static int IMAGE_HEIGHT = 250;
-    public static int META_DATA_OFFSET = 90;
+    public static int IMAGE_WIDTH = 180;
+    public static int IMAGE_HEIGHT = 180;
+    public static int META_DATA_OFFSET = 70;
     
     ImageCollectionModel() {
         m_imageModels = new ArrayList<ImageModel>();
@@ -29,6 +31,8 @@ public class ImageCollectionModel extends Observable {
         m_fileChooser.addChoosableFileFilter(filter_jpg);
         FileNameExtensionFilter filter_png = new FileNameExtensionFilter("*.png", "png");
         m_fileChooser.addChoosableFileFilter(filter_png);
+        // Initially we are in grid format.
+        grid = true;
 
         setChanged();
     }
@@ -54,9 +58,11 @@ public class ImageCollectionModel extends Observable {
                 catch (IOException ex) {
                     System.out.println(ex);
                 }
-                String creation_time = attr == null ? "Not available" : new Date(attr.creationTime().toMillis()).toString();
+                Date creation_time = attr == null ? null : new Date(attr.creationTime().toMillis());
+                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+                String creation_date = attr == null ? "Not available" : sdf.format(creation_time);
                 image = ImageIO.read(new File(path));
-                addImage(image, file_name, creation_time);
+                addImage(image, file_name, creation_date);
             } 
             catch (IOException e) {
                 e.printStackTrace();
@@ -66,6 +72,28 @@ public class ImageCollectionModel extends Observable {
 
     public void setFrame(JFrame frame) {
         m_Jframe = frame;
+    }
+
+    public void setGrid() {
+        if (grid) {
+            return;
+        }
+        grid = true;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setList() {
+        if (!grid) {
+            return;
+        }
+        grid = false;
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean isGrid() {
+        return grid;
     }
 
     public ArrayList<ImageModel> getImageModels() {

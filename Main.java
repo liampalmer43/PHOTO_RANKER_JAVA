@@ -34,9 +34,9 @@ public class Main{
                 return new Dimension(getParent().getWidth(), (int)super.getPreferredSize().getHeight());
             }
         };
+        p.add(image_collection_view, BorderLayout.CENTER);
         JScrollPane wrapper = new JScrollPane(p, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         frame.getContentPane().add(wrapper);
-        p.add(image_collection_view, BorderLayout.CENTER);
  
         frame.setJMenuBar(tool_bar.getMenuBar());
         frame.setPreferredSize(new Dimension(800,500));

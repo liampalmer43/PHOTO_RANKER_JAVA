@@ -30,10 +30,8 @@ class ImageView extends JPanel implements Observer {
 
         // create the view UI
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.BLACK);
         this.setPreferredSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH, ImageCollectionModel.IMAGE_HEIGHT + ImageCollectionModel.META_DATA_OFFSET));
         this.setMaximumSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH, ImageCollectionModel.IMAGE_HEIGHT + ImageCollectionModel.META_DATA_OFFSET));
-        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         BufferedImage image = m_model.getImage();
         Image scaled_image = image.getScaledInstance(ImageCollectionModel.IMAGE_WIDTH, ImageCollectionModel.IMAGE_HEIGHT, Image.SCALE_SMOOTH);
         JLabel image_label = new JLabel();
@@ -42,6 +40,7 @@ class ImageView extends JPanel implements Observer {
 
         m_pop = new JDialog();
         m_pop.setPreferredSize(new Dimension(400,400));
+        m_pop.setResizable(false);
         Image scaled_pop = image.getScaledInstance(400, 400, Image.SCALE_SMOOTH);
         JLabel label = new JLabel(new ImageIcon(scaled_pop));
         m_pop.add(label);
@@ -56,9 +55,17 @@ class ImageView extends JPanel implements Observer {
 
         JPanel description = new JPanel();
         description.setPreferredSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH, ImageCollectionModel.META_DATA_OFFSET));
-        description.setLayout(new GridLayout(3, 1, 5, 5));
-        description.add(new JLabel(m_model.getFileName()));
-        description.add(new JLabel(m_model.getCreationTime()));
+        description.setMaximumSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH, ImageCollectionModel.META_DATA_OFFSET));
+        description.setLayout(new GridLayout(2, 1));
+        JLabel name = new JLabel(m_model.getFileName());
+        JLabel date = new JLabel(m_model.getCreationTime());
+        name.setFont(new Font("Courier New", Font.BOLD, 10));
+        date.setFont(new Font("Courier New", Font.BOLD, 10));
+        JPanel words = new JPanel();
+        words.setLayout(new BorderLayout());
+        words.add(name, BorderLayout.LINE_START);
+        words.add(date, BorderLayout.LINE_END);
+        description.add(words);
         Rating rating = new Rating(0);
         description.add(rating);
         m_parent = description;
@@ -71,7 +78,7 @@ class ImageView extends JPanel implements Observer {
             Image scaled_filled_star = null;
             Image scaled_empty_star = null;
             try {
-                BufferedImage filled_star = ImageIO.read(new File("filled.jpeg"));
+                BufferedImage filled_star = ImageIO.read(new File("filled.png"));
                 BufferedImage empty_star = ImageIO.read(new File("empty.png"));
                 scaled_filled_star = filled_star.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
                 scaled_empty_star = empty_star.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
