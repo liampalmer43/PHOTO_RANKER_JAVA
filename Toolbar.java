@@ -20,6 +20,8 @@ class Toolbar extends JPanel implements Observer {
     private JMenuBar m_menuBar;
     private JToggleButton m_grid;
     private JToggleButton m_list;
+    // The ranking child component that must be removed in place of a new ranking filter.
+    private Ranking m_child;
 
     // the model that this view is showing
     private ImageCollectionModel m_model;
@@ -78,8 +80,10 @@ class Toolbar extends JPanel implements Observer {
         bar.add(m_load);
         bar.add(m_grid);
         bar.add(m_list);
+        m_child = new Ranking(0);
+        bar.add(m_child);
         m_menuBar = bar;
-        this.setLayout(new GridLayout(0, 5, 2, 2));
+//        this.setLayout(new GridLayout(0, 5, 2, 2));
         this.add(bar);
     } 
 
@@ -87,9 +91,55 @@ class Toolbar extends JPanel implements Observer {
         return m_menuBar;
     }
 
+    private class Ranking extends JPanel {
+        Ranking(int ranking) {
+            Image scaled_filled_star = null;
+            Image scaled_empty_star = null;
+            try {
+                BufferedImage filled_star = ImageIO.read(new File("filled.png"));
+                BufferedImage empty_star = ImageIO.read(new File("empty.png"));
+                scaled_filled_star = filled_star.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+                scaled_empty_star = empty_star.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            for (int i = 1; i <= 5; ++i) {
+                final int count = i;
+                if (count <= ranking) {
+                    JLabel filled = new JLabel();
+                    filled.setIcon(new ImageIcon(scaled_filled_star));
+                    filled.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            m_model.setRankingFilter(count);
+                        }
+                    });
+                    this.add(filled);
+                }
+                else {
+                    JLabel empty = new JLabel();
+                    empty.setIcon(new ImageIcon(scaled_empty_star));
+                    empty.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            m_model.setRankingFilter(count);
+                        }
+                    });
+                    this.add(empty);
+                }
+            }
+        }
+    }
+
     // Observer interface 
     @Override
     public void update(Observable arg0, Object arg1) {
-        // Might be used if we want this componenet to watch the view.
+        m_menuBar.remove(m_child);
+        m_child = new Ranking(m_model.getRankingFilter());
+        m_menuBar.add(m_child);
+        m_menuBar.revalidate();
+        m_menuBar.repaint();
     }
 } 

@@ -36,21 +36,30 @@ class ImageCollectionView extends JPanel implements Observer {
 
     private void resetLayout() {
         this.removeAll();
+        int ranking = m_model.getRankingFilter();
+        ArrayList<ImageModel> image_models = m_model.getImageModels();
+        ArrayList<ImageView> passing_views = new ArrayList<ImageView>();
+        for (int i = 0; i < image_models.size(); ++i) {
+            if (image_models.get(i).getRanking() >= ranking) {
+                passing_views.add(m_imageViews.get(i));
+            }
+        }
+                 
         if (m_model.isGrid()) {
             int columns = getWidth() / (ImageCollectionModel.IMAGE_WIDTH + 30);
-            int rows = (int)Math.ceil((float)m_imageViews.size() / columns);
+            int rows = (int)Math.ceil((float)passing_views.size() / columns);
             if (columns == 0 && rows == 0) {
                 return;
             }
             this.setLayout(new GridLayout(rows, columns, 5, 5));
             for (int i = 0; i < rows * columns; ++i) {
-                if (i < m_imageViews.size()) {
+                if (i < passing_views.size()) {
                     JPanel canvas = new JPanel();
                     canvas.setLayout(new BoxLayout(canvas, BoxLayout.X_AXIS));
                     JPanel inner_canvas = new JPanel();
                     inner_canvas.setLayout(new BoxLayout(inner_canvas, BoxLayout.Y_AXIS));
                     inner_canvas.add(new JPanel());
-                    inner_canvas.add(m_imageViews.get(i));
+                    inner_canvas.add(passing_views.get(i));
                     inner_canvas.add(new JPanel());
                     canvas.add(new JPanel());
                     canvas.add(inner_canvas);
@@ -64,11 +73,11 @@ class ImageCollectionView extends JPanel implements Observer {
         }
         else {
             this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-            for (int i = 0; i < m_imageViews.size(); ++i) {
+            for (int i = 0; i < passing_views.size(); ++i) {
                 // Make the list left aligned with a flow layout.
                 JPanel container = new JPanel();
                 container.setLayout(new FlowLayout(FlowLayout.LEFT));
-                container.add(m_imageViews.get(i));
+                container.add(passing_views.get(i));
                 container.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
                 this.add(container);
             }

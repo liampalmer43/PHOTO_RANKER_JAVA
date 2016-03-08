@@ -18,7 +18,8 @@ public class ImageCollectionModel extends Observable {
     private ArrayList<ImageModel> m_imageModels;
     private JFileChooser m_fileChooser;
     private JFrame m_Jframe;
-    private boolean grid;
+    private boolean m_grid;
+    private int m_rankingFilter;
 
     public static int IMAGE_WIDTH = 180;
     public static int IMAGE_HEIGHT = 180;
@@ -32,7 +33,9 @@ public class ImageCollectionModel extends Observable {
         FileNameExtensionFilter filter_png = new FileNameExtensionFilter("*.png", "png");
         m_fileChooser.addChoosableFileFilter(filter_png);
         // Initially we are in grid format.
-        grid = true;
+        m_grid = true;
+        // Initiall the ranking filter is zero.
+        m_rankingFilter = 0;
 
         setChanged();
     }
@@ -75,25 +78,35 @@ public class ImageCollectionModel extends Observable {
     }
 
     public void setGrid() {
-        if (grid) {
+        if (m_grid) {
             return;
         }
-        grid = true;
+        m_grid = true;
         setChanged();
         notifyObservers();
     }
 
     public void setList() {
-        if (!grid) {
+        if (!m_grid) {
             return;
         }
-        grid = false;
+        m_grid = false;
         setChanged();
         notifyObservers();
     }
 
+    public void setRankingFilter(int rankingFilter) {
+        m_rankingFilter = rankingFilter;
+        setChanged();
+        notifyObservers();
+    }
+
+    public int getRankingFilter() {
+        return m_rankingFilter;
+    }
+
     public boolean isGrid() {
-        return grid;
+        return m_grid;
     }
 
     public ArrayList<ImageModel> getImageModels() {

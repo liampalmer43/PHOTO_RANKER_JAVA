@@ -13,23 +13,23 @@ public class ImageModel extends Observable {
     private BufferedImage m_image;
     private String m_fileName;
     private String m_creationTime;
-    private int m_rating;
+    private int m_ranking;
     private JFrame m_Jframe;
 
     ImageModel(BufferedImage image, String fileName, String creationTime, JFrame jframe) {
         m_image = image;
         m_fileName = fileName;
         m_creationTime = creationTime;
-        m_rating = 0;
+        m_ranking = 0;
         m_Jframe = jframe;
         setChanged();
     }
 
-    public void setRating(int rating) {
-        if (m_rating == rating) {
+    public void setRanking(int ranking) {
+        if (m_ranking == ranking) {
             return;
         }
-        m_rating = rating;
+        m_ranking = ranking;
         setChanged();
         notifyObservers();
     }
@@ -46,8 +46,8 @@ public class ImageModel extends Observable {
         return m_creationTime;
     }
 
-    public int getRating() {
-        return m_rating;
+    public int getRanking() {
+        return m_ranking;
     }
 
     public JFrame getJframe() {

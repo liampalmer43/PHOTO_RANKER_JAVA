@@ -20,7 +20,7 @@ class ImageView extends JPanel implements Observer {
     // the model that this view is showing
     private ImageModel m_model;
     private JPanel m_parent;
-    private Rating m_child;
+    private Ranking m_child;
     private JDialog m_pop;
 
     ImageView(ImageModel model) {
@@ -66,15 +66,15 @@ class ImageView extends JPanel implements Observer {
         words.add(name, BorderLayout.LINE_START);
         words.add(date, BorderLayout.LINE_END);
         description.add(words);
-        Rating rating = new Rating(0);
-        description.add(rating);
+        Ranking ranking = new Ranking(0);
+        description.add(ranking);
         m_parent = description;
-        m_child = rating;
+        m_child = ranking;
         this.add(description, BorderLayout.PAGE_END);
     } 
 
-    private class Rating extends JPanel {
-        Rating(int rating) {
+    private class Ranking extends JPanel {
+        Ranking(int ranking) {
             Image scaled_filled_star = null;
             Image scaled_empty_star = null;
             try {
@@ -89,13 +89,13 @@ class ImageView extends JPanel implements Observer {
             }
             for (int i = 1; i <= 5; ++i) {
                 final int count = i;
-                if (count <= rating) {
+                if (count <= ranking) {
                     JLabel filled = new JLabel();
                     filled.setIcon(new ImageIcon(scaled_filled_star));
                     filled.addMouseListener(new MouseAdapter() {
                         @Override
                         public void mouseClicked(MouseEvent e) {
-                            m_model.setRating(count);
+                            m_model.setRanking(count);
                         }
                     });
                     this.add(filled);
@@ -106,7 +106,7 @@ class ImageView extends JPanel implements Observer {
                     empty.addMouseListener(new MouseAdapter() {
                         @Override
                         public void mouseClicked(MouseEvent e) {
-                            m_model.setRating(count);
+                            m_model.setRanking(count);
                         }
                     });
                     this.add(empty);
@@ -118,9 +118,9 @@ class ImageView extends JPanel implements Observer {
     // Observer interface 
     @Override
     public void update(Observable arg0, Object arg1) {
-        int rating = m_model.getRating();
+        int ranking = m_model.getRanking();
         m_parent.remove(m_child);
-        m_child = new Rating(rating);
+        m_child = new Ranking(ranking);
         m_parent.add(m_child);
         revalidate();
         repaint();
