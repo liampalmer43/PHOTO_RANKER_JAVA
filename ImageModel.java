@@ -15,13 +15,16 @@ public class ImageModel extends Observable {
     private String m_creationTime;
     private int m_ranking;
     private JFrame m_Jframe;
+    // We need this parameter to let the main model know that a specific ranking has changed.
+    private ImageCollectionModel m_imageCollectionModel;
 
-    ImageModel(BufferedImage image, String fileName, String creationTime, JFrame jframe) {
+    ImageModel(BufferedImage image, String fileName, String creationTime, JFrame jframe, ImageCollectionModel model) {
         m_image = image;
         m_fileName = fileName;
         m_creationTime = creationTime;
         m_ranking = 0;
         m_Jframe = jframe;
+        m_imageCollectionModel = model;
         setChanged();
     }
 
@@ -32,6 +35,8 @@ public class ImageModel extends Observable {
         m_ranking = ranking;
         setChanged();
         notifyObservers();
+        // Tell the main model about the new ranking, so the filter can act accordingly.
+        m_imageCollectionModel.newRanking(ranking);
     }
 
     public BufferedImage getImage() {

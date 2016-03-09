@@ -39,10 +39,10 @@ class ImageView extends JPanel implements Observer {
         this.add(image_label, BorderLayout.CENTER);
 
         m_pop = new JDialog();
-        m_pop.setPreferredSize(new Dimension(400,400));
         m_pop.setResizable(false);
         Image scaled_pop = image.getScaledInstance(400, 400, Image.SCALE_SMOOTH);
         JLabel label = new JLabel(new ImageIcon(scaled_pop));
+        label.setPreferredSize(new Dimension(400,400));
         m_pop.add(label);
         m_pop.pack();
         image_label.addMouseListener(new MouseAdapter() {
@@ -66,9 +66,26 @@ class ImageView extends JPanel implements Observer {
         words.add(name, BorderLayout.LINE_START);
         words.add(date, BorderLayout.LINE_END);
         description.add(words);
+
+        JButton clear_filter = null;
+        try {
+            BufferedImage icon = ImageIO.read(new File("broom.png"));
+            Image scaled_icon = icon.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            clear_filter = new JButton(new ImageIcon(scaled_icon));
+        } catch (IOException e) {
+            clear_filter = new JButton("Clear");
+        }
+        clear_filter.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                m_model.setRanking(0);
+            }
+        }); 
+        JPanel ranking_container = new JPanel();
         Ranking ranking = new Ranking(0);
-        description.add(ranking);
-        m_parent = description;
+        ranking_container.add(clear_filter);
+        ranking_container.add(ranking);
+        description.add(ranking_container);
+        m_parent = ranking_container;
         m_child = ranking;
         this.add(description, BorderLayout.PAGE_END);
     } 
@@ -122,7 +139,7 @@ class ImageView extends JPanel implements Observer {
         m_parent.remove(m_child);
         m_child = new Ranking(ranking);
         m_parent.add(m_child);
-        revalidate();
-        repaint();
+        m_parent.revalidate();
+        m_parent.repaint();
     }
 } 

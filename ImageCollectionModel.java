@@ -32,6 +32,7 @@ public class ImageCollectionModel extends Observable {
         m_fileChooser.addChoosableFileFilter(filter_jpg);
         FileNameExtensionFilter filter_png = new FileNameExtensionFilter("*.png", "png");
         m_fileChooser.addChoosableFileFilter(filter_png);
+        m_fileChooser.setMultiSelectionEnabled(true);
         // Initially we are in grid format.
         m_grid = true;
         // Initiall the ranking filter is zero.
@@ -41,7 +42,7 @@ public class ImageCollectionModel extends Observable {
     }
 
     public void addImage(BufferedImage image, String fileName, String creationTime) {
-        m_imageModels.add(new ImageModel(image, fileName, creationTime, m_Jframe));        
+        m_imageModels.add(new ImageModel(image, fileName, creationTime, m_Jframe, this));        
         setChanged();
         notifyObservers();
     }
@@ -49,26 +50,31 @@ public class ImageCollectionModel extends Observable {
     public void selectFile() {
         int result = m_fileChooser.showOpenDialog(m_Jframe);
         if (result == m_fileChooser.APPROVE_OPTION) {
-            String path = m_fileChooser.getSelectedFile().getAbsolutePath();
-            String file_name = m_fileChooser.getSelectedFile().getName();
-            BufferedImage image = null;
-            try {
-                Path path_object = Paths.get(path);
-                BasicFileAttributes attr = null;
+            File[] files = m_fileChooser.getSelectedFiles();
+            for (int i = 0; i < files.length; ++i) {
+                String path = files[i].getAbsolutePath();
+                String file_name = files[i].getName();
+                BufferedImage image = null;
                 try {
-                    attr = Files.readAttributes(path_object, BasicFileAttributes.class);
+                    Path path_object = Paths.get(path);
+                    BasicFileAttributes attr = null;
+                    try {
+                        attr = Files.readAttributes(path_object, BasicFileAttributes.class);
+                    }
+                    catch (IOException ex) {
+                        System.out.println(ex);
+                    }
+                    Date creation_time = attr == null ? null : new Date(attr.creationTime().toMillis());
+                    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+                    String creation_date = attr == null ? "Not available" : sdf.format(creation_time);
+                    image = ImageIO.read(new File(path));
+                    if (image != null) {
+                        addImage(image, file_name, creation_date);
+                    }
+                } 
+                catch (IOException e) {
+                    e.printStackTrace();
                 }
-                catch (IOException ex) {
-                    System.out.println(ex);
-                }
-                Date creation_time = attr == null ? null : new Date(attr.creationTime().toMillis());
-                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
-                String creation_date = attr == null ? "Not available" : sdf.format(creation_time);
-                image = ImageIO.read(new File(path));
-                addImage(image, file_name, creation_date);
-            } 
-            catch (IOException e) {
-                e.printStackTrace();
             }
         }
     }
@@ -91,6 +97,11 @@ public class ImageCollectionModel extends Observable {
             return;
         }
         m_grid = false;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void newRanking(int ranking) {
         setChanged();
         notifyObservers();
     }

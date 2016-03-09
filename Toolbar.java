@@ -20,8 +20,10 @@ class Toolbar extends JPanel implements Observer {
     private JMenuBar m_menuBar;
     private JToggleButton m_grid;
     private JToggleButton m_list;
+    private JButton m_clearFilter;
     // The ranking child component that must be removed in place of a new ranking filter.
     private Ranking m_child;
+    private JPanel m_parent;
 
     // the model that this view is showing
     private ImageCollectionModel m_model;
@@ -52,6 +54,14 @@ class Toolbar extends JPanel implements Observer {
         } catch (IOException e) {
             m_list = new JToggleButton("List");
         }
+        m_clearFilter = null;
+        try {
+            BufferedImage icon = ImageIO.read(new File("broom.png"));
+            Image scaled_icon = icon.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            m_clearFilter = new JButton(new ImageIcon(scaled_icon));
+        } catch (IOException e) {
+            m_clearFilter = new JButton("Clear");
+        }
         
         // set the model 
         m_model = model;
@@ -75,15 +85,28 @@ class Toolbar extends JPanel implements Observer {
                 m_model.selectFile();
             }
         }); 
+        m_clearFilter.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                m_model.setRankingFilter(0);
+            }
+        }); 
 
         JMenuBar bar = new JMenuBar();
-        bar.add(m_load);
-        bar.add(m_grid);
-        bar.add(m_list);
+        JPanel divider = new JPanel(new GridLayout(0, 2));
+        JPanel left_container = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel right_container = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        divider.add(left_container);
+        divider.add(right_container);
+        left_container.add(m_load);
+        left_container.add(m_grid);
+        left_container.add(m_list);
+    
         m_child = new Ranking(0);
-        bar.add(m_child);
+        right_container.add(m_clearFilter);
+        right_container.add(m_child);
+        m_parent = right_container;
+        bar.add(divider);
         m_menuBar = bar;
-//        this.setLayout(new GridLayout(0, 5, 2, 2));
         this.add(bar);
     } 
 
@@ -136,10 +159,10 @@ class Toolbar extends JPanel implements Observer {
     // Observer interface 
     @Override
     public void update(Observable arg0, Object arg1) {
-        m_menuBar.remove(m_child);
+        m_parent.remove(m_child);
         m_child = new Ranking(m_model.getRankingFilter());
-        m_menuBar.add(m_child);
-        m_menuBar.revalidate();
-        m_menuBar.repaint();
+        m_parent.add(m_child);
+        m_parent.revalidate();
+        m_parent.repaint();
     }
 } 

@@ -8,7 +8,7 @@ public class Main{
 
     public static void main(String[] args){ 
         JFrame frame = new JFrame("Fotag!");
-        frame.setMinimumSize(new Dimension(400, 350));
+        frame.setMinimumSize(new Dimension(300, 300));
         
         // create Model and initialize it
         ImageCollectionModel image_collection_model = new ImageCollectionModel();
