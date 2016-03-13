@@ -14,29 +14,36 @@ import java.io.File;
 import java.io.IOException;
 
 class ImageView extends JPanel implements Observer {
-
-    // the view's main user interface
-    
-    // the model that this view is showing
+    // The model that this view is showing.
     private ImageModel m_model;
+    // The parent element holding the ranking object and clear button.
     private JPanel m_gridParent;
+    // The child ranking object.
     private Ranking m_gridChildRanking;
+    // The child clear button.
     private JButton m_gridChildFilter;
+    // The same member variables used for the list layout.
     private JPanel m_listParent;
     private Ranking m_listChildRanking;
     private JButton m_listChildFilter;
+    // The JDialog used for popups of the enlarged image.
     private JDialog m_pop;
+    // Whether or not the current view if displaying its meta data
+    // in grid fashion or list fashion.
     private boolean m_grid;
+    // The ranking of the current view.
     private int m_ranking;
     // The container for the grid layout ImageView.
     private JPanel m_gridContainer;
     // The container for the list layout ImageView.
     private JPanel m_listContainer;
-    // Imaged
+    // Images used in the ranking object.
+    // We only want to initialize these once.
     private static Image m_filledStar = null;
     private static Image m_emptyStar = null;
 
     ImageView(ImageModel model) {
+        // If the ranking object's images have not been extracted, do so.
         if (m_filledStar == null || m_emptyStar == null) {
             try {
                 BufferedImage filled_star = ImageIO.read(new File("filled.png"));
@@ -50,17 +57,20 @@ class ImageView extends JPanel implements Observer {
             }
         }
 
-        // set the model 
+        // Set the model. 
         m_model = model;
         m_model.addObserver(this);
-        // set state variables
+        // Set state variables.
         m_grid = true;
         m_ranking = 0;
 
-        // create the view UI
+        // Create the view UI.
+        // We maintain an indepentant container for both the grid and list view.
+        // This ensures no view object has the same parent.
         m_gridContainer = new JPanel();
         m_listContainer = new JPanel();
 
+        // Set layout semantics.
         m_gridContainer.setLayout(new BorderLayout());
         m_gridContainer.setPreferredSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH, ImageCollectionModel.IMAGE_HEIGHT + ImageCollectionModel.META_DATA_OFFSET));
         m_gridContainer.setMaximumSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH, ImageCollectionModel.IMAGE_HEIGHT + ImageCollectionModel.META_DATA_OFFSET));
@@ -68,6 +78,7 @@ class ImageView extends JPanel implements Observer {
         m_listContainer.setPreferredSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH * 2, ImageCollectionModel.IMAGE_HEIGHT));
         m_listContainer.setMaximumSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH * 2, ImageCollectionModel.IMAGE_HEIGHT));
 
+        // Set the image component of the view.
         BufferedImage image = m_model.getImage();
         Image scaled_image = image.getScaledInstance(ImageCollectionModel.IMAGE_WIDTH, ImageCollectionModel.IMAGE_HEIGHT, Image.SCALE_SMOOTH);
         JLabel grid_image_label = new JLabel();
@@ -78,6 +89,7 @@ class ImageView extends JPanel implements Observer {
         m_gridContainer.add(grid_image_label, BorderLayout.CENTER);
         m_listContainer.add(list_image_label, BorderLayout.CENTER);
 
+        // Initialize the JDialog for pop up actions.
         m_pop = new JDialog();
         m_pop.setResizable(false);
         Image scaled_pop = image.getScaledInstance(500, 500, Image.SCALE_SMOOTH);
@@ -172,13 +184,16 @@ class ImageView extends JPanel implements Observer {
         m_listChildRanking = list_ranking;
         m_listChildFilter = list_clear_filter;
 
+        // Add the meta data in the right region of the grid or list view.
         m_gridContainer.add(grid_description, BorderLayout.PAGE_END);
         m_listContainer.add(list_description, BorderLayout.LINE_END);
 
+        // Add a border, and set the meta data layout appropriately.
         this.setBorder(BorderFactory.createLineBorder(Color.black, 1));
         this.add(m_model.isGrid() ? m_gridContainer : m_listContainer);
     } 
 
+    // The ranking object interface for the ImageView.
     private class Ranking extends JPanel {
         Ranking(int ranking) {
             for (int i = 1; i <= 5; ++i) {
@@ -212,6 +227,7 @@ class ImageView extends JPanel implements Observer {
     // Observer interface 
     @Override
     public void update(Observable arg0, Object arg1) {
+        // Only update the meta data layout if necessary.
         boolean grid = m_model.isGrid();
         if (m_grid != grid) {
             m_grid = grid;
@@ -219,8 +235,10 @@ class ImageView extends JPanel implements Observer {
             this.add(m_grid ? m_gridContainer : m_listContainer);
         }
 
+        // Only update the ranking object if necessary.
         int ranking = m_model.getRanking();
         if (m_ranking != ranking) {
+            // Update the ranking object of the grid view.
             m_gridParent.removeAll();
             m_gridChildRanking = new Ranking(ranking);
             m_gridParent.add(m_gridChildRanking);
@@ -228,6 +246,7 @@ class ImageView extends JPanel implements Observer {
             m_gridParent.revalidate();
             m_gridParent.repaint();
 
+            // Update the ranking object of the list view.
             m_listParent.removeAll();
             m_listChildRanking = new Ranking(ranking);
             m_listParent.add(m_listChildRanking);

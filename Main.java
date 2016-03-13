@@ -21,7 +21,7 @@ public class Main{
         JFrame frame = new JFrame("Fotag!");
         frame.setMinimumSize(new Dimension(410, 300));
         
-        // create Model and initialize it
+        // Create the ImageCollectionModel, ImageCollectionView and Toolbar.
         ImageCollectionModel image_collection_model = new ImageCollectionModel();
         image_collection_model.setFrame(frame);
         
@@ -31,10 +31,13 @@ public class Main{
         Toolbar tool_bar = new Toolbar(image_collection_model);
         image_collection_model.addObserver(tool_bar);
         
-        // let all the views know that they're connected to the model
+        // Let all the views know that they're connected to the model.
         image_collection_model.notifyObservers();
 
         // Try to restore previous state if the appropriate file exists.
+        // File is assumed to contain an integer specifying the number of images,
+        // followed by the size name (String), path (String) and ranking (Integer)
+        // of each image in that order.
         try {
             FileReader fileReader = new FileReader("state.txt");
             BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -69,11 +72,13 @@ public class Main{
             } finally {
                 bufferedReader.close();
             }
-        } 
+        }
+        // In the case of exceptions, simply avoid loading the requested image/file.
         catch(FileNotFoundException ex) {} 
         catch(IOException ex) {}
         
-        // create the window
+        // Create a panel that will be nesting inside the JScrollBar.
+        // Ensure it keeps the same width as its parent.
         JPanel p = new JPanel(new BorderLayout()) {
             @Override
             public Dimension getPreferredSize() {
@@ -87,6 +92,7 @@ public class Main{
         frame.setJMenuBar(tool_bar.getMenuBar());
         frame.setPreferredSize(new Dimension(800,500));
         frame.pack();
+        // Save the state before exiting.
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {

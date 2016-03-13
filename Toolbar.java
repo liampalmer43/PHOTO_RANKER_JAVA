@@ -15,23 +15,27 @@ import java.io.IOException;
 
 class Toolbar extends JPanel implements Observer {
 
-    // the view's main user interface
+    // The load button.
     private JButton m_load;
+    // The menu bar (set to be the frame's menu bar).
     private JMenuBar m_menuBar;
+    // The toggle button pair for view toggling.
     private JToggleButton m_grid;
     private JToggleButton m_list;
+    // The clear filter button.
     private JButton m_clearFilter;
     // The ranking child component that must be removed in place of a new ranking filter.
     private Ranking m_child;
     private JPanel m_parent;
-    // Images
+    // Images used in the ranking object.
     private static Image m_filledStar = null;
     private static Image m_emptyStar = null;
 
-    // the model that this view is showing
+    // The model that this view is showing.
     private ImageCollectionModel m_model;
     
     Toolbar(ImageCollectionModel model) {
+        // Initialize the ranking object's images.
         if (m_filledStar == null || m_emptyStar == null) {
             try {
                 BufferedImage filled_star = ImageIO.read(new File("filled.png"));
@@ -45,7 +49,9 @@ class Toolbar extends JPanel implements Observer {
             }
         }
 
-        // create the view UI
+        // Create the view UI.
+        // Start with the toolbar buttons.
+        // The loading button.
         m_load = null;
         try {
             BufferedImage icon = ImageIO.read(new File("load.png"));
@@ -54,6 +60,7 @@ class Toolbar extends JPanel implements Observer {
         } catch (IOException e) {
             m_load = new JButton("Load");
         }
+        // The grid view button.
         m_grid = null;
         try {
             BufferedImage icon = ImageIO.read(new File("grid.gif"));
@@ -62,6 +69,7 @@ class Toolbar extends JPanel implements Observer {
         } catch (IOException e) {
             m_grid = new JToggleButton("Grid", true);
         }
+        // The list view button.
         m_list = null;
         try {
             BufferedImage icon = ImageIO.read(new File("list.png"));
@@ -70,6 +78,7 @@ class Toolbar extends JPanel implements Observer {
         } catch (IOException e) {
             m_list = new JToggleButton("List");
         }
+        // The clear filter button.
         m_clearFilter = null;
         try {
             BufferedImage icon = ImageIO.read(new File("broom.png"));
@@ -79,7 +88,7 @@ class Toolbar extends JPanel implements Observer {
             m_clearFilter = new JButton("Clear");
         }
         
-        // set the model 
+        // Set the model.
         m_model = model;
         
         m_grid.addActionListener(new ActionListener( ) {
@@ -130,8 +139,10 @@ class Toolbar extends JPanel implements Observer {
         return m_menuBar;
     }
 
+    // The toolbar's ranking object.
     private class Ranking extends JPanel {
         Ranking(int ranking) {
+            this.add(new JLabel("FILTER BY: "));
             for (int i = 1; i <= 5; ++i) {
                 final int count = i;
                 if (count <= ranking) {

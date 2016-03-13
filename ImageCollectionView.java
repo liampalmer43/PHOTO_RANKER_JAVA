@@ -15,16 +15,16 @@ import java.io.IOException;
 
 class ImageCollectionView extends JPanel implements Observer {
 
-    // the view's main user interface
+    // All individual image views.
     private ArrayList<ImageView> m_imageViews;
-
-    // the model that this view is showing
+    // The model that this view is showing.
     private ImageCollectionModel m_model;
     
     ImageCollectionView(ImageCollectionModel model) {
-        // set the model 
+        // Set the model. 
         m_model = model;
 
+        // When the component is resized, recalculate and adjust layout.
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -35,7 +35,9 @@ class ImageCollectionView extends JPanel implements Observer {
     }
 
     private void resetLayout() {
+        // Start from scratch.
         this.removeAll();
+        // Determine the views to be displayed based on the ranking filter.
         int ranking = m_model.getRankingFilter();
         ArrayList<ImageModel> image_models = m_model.getImageModels();
         ArrayList<ImageView> passing_views = new ArrayList<ImageView>();
@@ -44,8 +46,10 @@ class ImageCollectionView extends JPanel implements Observer {
                 passing_views.add(m_imageViews.get(i));
             }
         }
-                 
+        
+        // If grid view, determined the number of rows and columns and fill them. 
         if (m_model.isGrid()) {
+            // The +30 adds a slight buffer for when a new number of columns is actually determined.
             int columns = getWidth() / (ImageCollectionModel.IMAGE_WIDTH + 30);
             int rows = (int)Math.ceil((float)passing_views.size() / columns);
             if (columns == 0 && rows == 0) {
@@ -54,6 +58,7 @@ class ImageCollectionView extends JPanel implements Observer {
             this.setLayout(new GridLayout(rows, columns, 5, 5));
             for (int i = 0; i < rows * columns; ++i) {
                 if (i < passing_views.size()) {
+                    // Use nested box layouts with empty JPanels to center the image view in its place.
                     JPanel canvas = new JPanel();
                     canvas.setLayout(new BoxLayout(canvas, BoxLayout.X_AXIS));
                     JPanel inner_canvas = new JPanel();
@@ -89,13 +94,16 @@ class ImageCollectionView extends JPanel implements Observer {
     // Observer interface 
     @Override
     public void update(Observable arg0, Object arg1) {
+        // Test for a new image and act accordingly by creating a new view.
         ArrayList<ImageModel> image_models = m_model.getImageModels();
         if (m_imageViews.size() != image_models.size()){
             m_imageViews.add(new ImageView(image_models.get(image_models.size() - 1)));
         }
+        // Update the image views to ensure consistency in data.
         for (int i = 0; i < m_imageViews.size(); ++i) {
             m_imageViews.get(i).update(arg0, arg1);
         }
+        // Update the layout based on new data.
         resetLayout();
     }
 } 
