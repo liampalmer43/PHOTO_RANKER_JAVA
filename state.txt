@@ -1,13 +1,13 @@
 7
 parrot.jpg
 /Users/liampalmer/Desktop/parrot.jpg
-3
+1
 broom.png
 /Users/liampalmer/cs349/a3/broom.png
-0
+2
 empty.png
 /Users/liampalmer/cs349/a3/empty.png
-3
+1
 filled.png
 /Users/liampalmer/cs349/a3/filled.png
 0
