@@ -72,29 +72,73 @@ class ImageView extends JPanel implements Observer {
 
         // Set layout semantics.
         m_gridContainer.setLayout(new BorderLayout());
-        m_gridContainer.setPreferredSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH, ImageCollectionModel.IMAGE_HEIGHT + ImageCollectionModel.META_DATA_OFFSET));
-        m_gridContainer.setMaximumSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH, ImageCollectionModel.IMAGE_HEIGHT + ImageCollectionModel.META_DATA_OFFSET));
+        m_gridContainer.setPreferredSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH,
+                                                       ImageCollectionModel.IMAGE_HEIGHT + ImageCollectionModel.META_DATA_OFFSET));
+        m_gridContainer.setMaximumSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH,
+                                                     ImageCollectionModel.IMAGE_HEIGHT + ImageCollectionModel.META_DATA_OFFSET));
         m_listContainer.setLayout(new BorderLayout());
         m_listContainer.setPreferredSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH * 2, ImageCollectionModel.IMAGE_HEIGHT));
         m_listContainer.setMaximumSize(new Dimension(ImageCollectionModel.IMAGE_WIDTH * 2, ImageCollectionModel.IMAGE_HEIGHT));
 
         // Set the image component of the view.
         BufferedImage image = m_model.getImage();
-        Image scaled_image = image.getScaledInstance(ImageCollectionModel.IMAGE_WIDTH, ImageCollectionModel.IMAGE_HEIGHT, Image.SCALE_SMOOTH);
+        int width = image.getWidth();
+        int height = image.getHeight();
+        float width_scale = ImageCollectionModel.IMAGE_WIDTH / (float)width;
+        float height_scale = ImageCollectionModel.IMAGE_HEIGHT / (float)height;
+        float scale = width_scale < height_scale ? width_scale : height_scale;
+        Image scaled_image = image.getScaledInstance((int)(width * scale),
+                                                     (int)(height * scale),
+                                                     Image.SCALE_SMOOTH);
         JLabel grid_image_label = new JLabel();
         grid_image_label.setIcon(new ImageIcon(scaled_image));
         JLabel list_image_label = new JLabel();
         list_image_label.setIcon(new ImageIcon(scaled_image));
+                    
+        // Use nested box layouts with empty JPanels to center the image.
+        JPanel grid_canvas = new JPanel();
+        grid_canvas.setLayout(new BoxLayout(grid_canvas, BoxLayout.X_AXIS));
+        grid_canvas.add(new JPanel(){
+                            @Override
+                            public Dimension getMinimumSize() {
+                                return new Dimension(0, 0);
+                            }});
+        grid_canvas.add(grid_image_label);
+        grid_canvas.add(new JPanel(){
+                            @Override
+                            public Dimension getMinimumSize() {
+                                return new Dimension(0, 0);
+                            }});
+        
+        JPanel list_canvas = new JPanel();
+        list_canvas.setLayout(new BoxLayout(list_canvas, BoxLayout.X_AXIS));
+        list_canvas.add(new JPanel(){
+                            @Override
+                            public Dimension getMinimumSize() {
+                                return new Dimension(0, 0);
+                            }});
+        list_canvas.add(list_image_label);
+        list_canvas.add(new JPanel(){
+                            @Override
+                            public Dimension getMinimumSize() {
+                                return new Dimension(0, 0);
+                            }});
 
-        m_gridContainer.add(grid_image_label, BorderLayout.CENTER);
-        m_listContainer.add(list_image_label, BorderLayout.CENTER);
+        // Add the image to the container.
+        m_gridContainer.add(grid_canvas, BorderLayout.CENTER);
+        m_listContainer.add(list_canvas, BorderLayout.CENTER);
 
         // Initialize the JDialog for pop up actions.
         m_pop = new JDialog();
         m_pop.setResizable(false);
-        Image scaled_pop = image.getScaledInstance(500, 500, Image.SCALE_SMOOTH);
+        float pop_width_scale = 600 / (float)width;
+        float pop_height_scale = 600 / (float)height;
+        float pop_scale = pop_width_scale < pop_height_scale ? pop_width_scale : pop_height_scale;
+        Image scaled_pop = image.getScaledInstance((int)(width * pop_scale),
+                                                     (int)(height * pop_scale),
+                                                     Image.SCALE_SMOOTH);
         JLabel label = new JLabel(new ImageIcon(scaled_pop));
-        label.setPreferredSize(new Dimension(500,500));
+        label.setPreferredSize(new Dimension((int)(width * pop_scale), (int)(height * pop_scale)));
         m_pop.add(label);
         m_pop.pack();
         grid_image_label.addMouseListener(new MouseAdapter() {
