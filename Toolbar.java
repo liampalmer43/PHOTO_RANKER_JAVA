@@ -24,11 +24,27 @@ class Toolbar extends JPanel implements Observer {
     // The ranking child component that must be removed in place of a new ranking filter.
     private Ranking m_child;
     private JPanel m_parent;
+    // Images
+    private static Image m_filledStar = null;
+    private static Image m_emptyStar = null;
 
     // the model that this view is showing
     private ImageCollectionModel m_model;
     
     Toolbar(ImageCollectionModel model) {
+        if (m_filledStar == null || m_emptyStar == null) {
+            try {
+                BufferedImage filled_star = ImageIO.read(new File("filled.png"));
+                BufferedImage empty_star = ImageIO.read(new File("empty.png"));
+                m_filledStar = filled_star.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+                m_emptyStar = empty_star.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
         // create the view UI
         m_load = null;
         try {
@@ -102,8 +118,8 @@ class Toolbar extends JPanel implements Observer {
         left_container.add(m_list);
     
         m_child = new Ranking(0);
-        right_container.add(m_clearFilter);
         right_container.add(m_child);
+        right_container.add(m_clearFilter);
         m_parent = right_container;
         bar.add(divider);
         m_menuBar = bar;
@@ -116,23 +132,11 @@ class Toolbar extends JPanel implements Observer {
 
     private class Ranking extends JPanel {
         Ranking(int ranking) {
-            Image scaled_filled_star = null;
-            Image scaled_empty_star = null;
-            try {
-                BufferedImage filled_star = ImageIO.read(new File("filled.png"));
-                BufferedImage empty_star = ImageIO.read(new File("empty.png"));
-                scaled_filled_star = filled_star.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-                scaled_empty_star = empty_star.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
             for (int i = 1; i <= 5; ++i) {
                 final int count = i;
                 if (count <= ranking) {
                     JLabel filled = new JLabel();
-                    filled.setIcon(new ImageIcon(scaled_filled_star));
+                    filled.setIcon(new ImageIcon(m_filledStar));
                     filled.addMouseListener(new MouseAdapter() {
                         @Override
                         public void mouseClicked(MouseEvent e) {
@@ -143,7 +147,7 @@ class Toolbar extends JPanel implements Observer {
                 }
                 else {
                     JLabel empty = new JLabel();
-                    empty.setIcon(new ImageIcon(scaled_empty_star));
+                    empty.setIcon(new ImageIcon(m_emptyStar));
                     empty.addMouseListener(new MouseAdapter() {
                         @Override
                         public void mouseClicked(MouseEvent e) {
@@ -159,9 +163,10 @@ class Toolbar extends JPanel implements Observer {
     // Observer interface 
     @Override
     public void update(Observable arg0, Object arg1) {
-        m_parent.remove(m_child);
+        m_parent.removeAll();
         m_child = new Ranking(m_model.getRankingFilter());
         m_parent.add(m_child);
+        m_parent.add(m_clearFilter);
         m_parent.revalidate();
         m_parent.repaint();
     }

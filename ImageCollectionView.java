@@ -93,6 +93,9 @@ class ImageCollectionView extends JPanel implements Observer {
         if (m_imageViews.size() != image_models.size()){
             m_imageViews.add(new ImageView(image_models.get(image_models.size() - 1)));
         }
+        for (int i = 0; i < m_imageViews.size(); ++i) {
+            m_imageViews.get(i).update(arg0, arg1);
+        }
         resetLayout();
     }
 } 

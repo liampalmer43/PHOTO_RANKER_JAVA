@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 public class ImageCollectionModel extends Observable { 
     // the data in the model
     private ArrayList<ImageModel> m_imageModels;
+    private ArrayList<String> m_filePaths;
     private JFileChooser m_fileChooser;
     private JFrame m_Jframe;
     private boolean m_grid;
@@ -27,6 +28,7 @@ public class ImageCollectionModel extends Observable {
     
     ImageCollectionModel() {
         m_imageModels = new ArrayList<ImageModel>();
+        m_filePaths = new ArrayList<String>();
         m_fileChooser = new JFileChooser();
         FileNameExtensionFilter filter_jpg = new FileNameExtensionFilter("*.jpg", "jpg");
         m_fileChooser.addChoosableFileFilter(filter_jpg);
@@ -41,8 +43,19 @@ public class ImageCollectionModel extends Observable {
         setChanged();
     }
 
-    public void addImage(BufferedImage image, String fileName, String creationTime) {
-        m_imageModels.add(new ImageModel(image, fileName, creationTime, m_Jframe, this));        
+    // Adding an image must happen through this interface.
+    public void addImage(BufferedImage image, String fileName, String creationTime, String filePath, int ranking) {
+        for (int i = 0; i < m_filePaths.size(); ++i) {
+            if (m_filePaths.get(i).equals(filePath)) {
+                return;
+            }
+        }
+
+        m_imageModels.add(new ImageModel(image, fileName, creationTime, m_Jframe, this));
+        if (ranking != 0) {
+            m_imageModels.get(m_imageModels.size() - 1).setRanking(ranking);
+        }
+        m_filePaths.add(filePath);
         setChanged();
         notifyObservers();
     }
@@ -69,7 +82,7 @@ public class ImageCollectionModel extends Observable {
                     String creation_date = attr == null ? "Not available" : sdf.format(creation_time);
                     image = ImageIO.read(new File(path));
                     if (image != null) {
-                        addImage(image, file_name, creation_date);
+                        addImage(image, file_name, creation_date, path, 0);
                     }
                 } 
                 catch (IOException e) {
@@ -79,8 +92,37 @@ public class ImageCollectionModel extends Observable {
         }
     }
 
+    public void saveState() {
+        try {
+            FileWriter fileWriter = new FileWriter("state.txt");
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+            try {
+                bufferedWriter.write(String.valueOf(m_imageModels.size()));
+                bufferedWriter.newLine();
+                for (int i = 0; i < m_imageModels.size(); ++i) {
+                    ImageModel image_model = m_imageModels.get(i);
+                    bufferedWriter.write(image_model.getFileName());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write(m_filePaths.get(i));
+                    bufferedWriter.newLine();
+                    bufferedWriter.write(String.valueOf(image_model.getRanking()));
+                    bufferedWriter.newLine();
+                }
+            } finally {
+                bufferedWriter.close();
+            }
+        } catch(IOException ex) {}
+    }
+
     public void setFrame(JFrame frame) {
         m_Jframe = frame;
+    }
+
+    public void changeImageLayout() {
+        for (int i = 0; i < m_imageModels.size(); ++i) {
+            m_imageModels.get(i).changeLayout();
+        }
     }
 
     public void setGrid() {
@@ -90,6 +132,7 @@ public class ImageCollectionModel extends Observable {
         m_grid = true;
         setChanged();
         notifyObservers();
+        changeImageLayout();
     }
 
     public void setList() {
@@ -99,6 +142,7 @@ public class ImageCollectionModel extends Observable {
         m_grid = false;
         setChanged();
         notifyObservers();
+        changeImageLayout();
     }
 
     public void newRanking(int ranking) {

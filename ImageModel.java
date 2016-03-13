@@ -28,6 +28,16 @@ public class ImageModel extends Observable {
         setChanged();
     }
 
+    public void changeLayout() {
+        // Simply notify the single view that the image layout has changed.
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean isGrid() {
+        return m_imageCollectionModel.isGrid();
+    }
+
     public void setRanking(int ranking) {
         if (m_ranking == ranking) {
             return;
